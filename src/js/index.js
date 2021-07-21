@@ -1,15 +1,16 @@
+
 async function main(){
     const filePath = "../data/famousPeopleForLastName.txt"
 
     const data = await fetchData(filePath);
-    const $input = document.getElementsByTagName("input")[0];
-    const $list = document.getElementsByTagName("ul")[0];
+    const $input = document.getElementsByClassName("search-bar")[0];
+    const $searchList = document.getElementsByClassName("lastname-list")[0];
+    const $resultList = document.getElementsByClassName("result-list")[0];
     
-    const mediator = new Mediator($input, $list, data);
+    const mediator = new Mediator($input, $searchList, $resultList, data);
 }
 
 main();
-
 
 
 
@@ -23,23 +24,28 @@ async function fetchData(filePath){
 
 
 class Mediator{
-    constructor($input, $list, data){
+    constructor($input, $searchList, $resultList, data){
         this.input = new Input($input, this);
-        this.searchView = new SearchListView($list, this);
+        this.searchView = new ListView($searchList, this);
+        this.resultView = new ListView($resultList, this);
         this.lastnameAndPeople = new LastnameAndPeople(data);
     }
 
-    getTypedText(value){
+    reportTypedText(value){
         const lastnameList = this.lastnameAndPeople.findLastname(value);
+        this.resultView.deleteAll();
         this.searchView.addElements(lastnameList);
     }
 
-    getClickedLi(value){
-        const peopleList = this.lastnameAndPeople.getPeopleByLastname(value);
-        if(peopleList === null){
-            console.log("no result");
-        } else{
-            console.log(peopleList);
+    reportClickedLi(that, value){
+        console.log("selected: ", value);
+        if (that == this.searchView){
+            let peopleList = this.lastnameAndPeople.getPeopleByLastname(value);
+            this.searchView.deleteAll();
+            if(peopleList === null){
+                peopleList = ["No Result"];
+            }
+            this.resultView.addElements(peopleList);
         }
     }
 }
@@ -51,14 +57,14 @@ class Input{
         this.mediator = mediator;
         this.$input.onkeyup = () => {
             const value = this.$input.value;
-            this.mediator.getTypedText(value);
+            this.mediator.reportTypedText(value);
         }
     }
 }
 
 
 
-class SearchListView{
+class ListView{
     constructor(ul, mediator){
         this.$ul = ul;
         this.mediator = mediator
@@ -81,7 +87,7 @@ class SearchListView{
     }
 
     report(value){
-        this.mediator.getClickedLi(value);
+        this.mediator.reportClickedLi(this, value);
     }
     
     deleteAll(){
@@ -131,20 +137,64 @@ class LastnameAndPeople{
         return list;
     }
 
-    // "본관 성" 구성에서 성이 일치하는 경우를 먼저 보여줌
+    // "본관 성" 구성에서 성, 본관 순서로 우선 검색함
     findLastname(substr){
-        const list = [];
+        const lastnameList = [], hometownList = [];
         for(let lastname of this.lastnameList){
             if (this.matchToString(lastname, substr)){
-                const [hometown, last] = lastname.split(" ");
-                if(last == substr){
-                    list.unshift(lastname);
+                const [home, name] = lastname.split(" ");
+                if (this.matchToString(name, substr)){
+                    lastnameList.push(lastname);
                 } else{
-                    list.push(lastname);
+                    hometownList.push(lastname);
                 }
             }
         }
-        return list;
+        lastnameList.sort((a, b) => {
+            return this.sortByLastnameAndHometown(a, b);
+        })
+        hometownList.sort((a, b) => {
+            return this.sortByHometownAndLastname(a, b);
+        })
+        return [...lastnameList, ...hometownList];
+    }
+
+    sortByLastnameAndHometown(a, b){
+        const [hometownA, lastnameA] = a.split(" ");
+        const [hometownB, lastnameB] = b.split(" ");
+        
+        if (lastnameA > lastnameB){
+            return 1;
+        } else if (lastnameA < lastnameB){
+            return -1;
+        } else{
+            if (hometownA > hometownB){
+                return 1;
+            } else if (hometownA < hometownB){
+                return -1;
+            } else{
+                return 0;
+            }
+        }
+    }
+
+    sortByHometownAndLastname(a, b){
+        const [hometownA, lastnameA] = a.split(" ");
+        const [hometownB, lastnameB] = b.split(" ");
+        
+        if (hometownA > hometownB){
+            return 1;
+        } else if (hometownA < hometownB){
+            return -1;
+        } else{
+            if (lastnameA > lastnameB){
+                return 1;
+            } else if (lastnameA < lastnameB){
+                return -1;
+            } else{
+                return 0;
+            }
+        }
     }
 
     matchToString(target, substr){
@@ -156,6 +206,7 @@ class LastnameAndPeople{
     }
 
     getPeopleByLastname(lastname){
-        return this.lastnameAndPeopleList[lastname];
+        const list = this.lastnameAndPeopleList[lastname]
+        return list ? list.sort() : null;
     }
 }
