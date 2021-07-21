@@ -1,0 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@700&display=swap');
+
+:root{
+    --bg-color: rgb(223, 221, 221);
+    --page-color: white;
+    --search-bar-bg-color: rgb(0, 0, 0);
+    --search-bar-font-color: rgb(255, 255, 255);
+    --placeholder-color: rgb(184, 184, 184);
+    --title-size: 27px;
+    --description-size: 17px;
+}
+
+body{
+    margin: 0%;
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: var(--bg-color);
+    height: 100%;
+    padding: 10% 0%;
+}
+
+#welcome-page{
+    margin: auto;
+    width: 70%;
+    min-width: 260px;
+    max-width: 500px;
+    background-color: var(--page-color);
+    border-radius: 10px;
+    box-shadow: 10px 10px 10px grey;
+}
+
+.main-box{
+    margin: auto;
+    justify-content: center;
+}
+
+.contents-box{
+    padding: 20px 10%;
+}
+
+.title{
+    margin: 10px 0px;
+    font-size: var(--title-size);
+    text-align: center;
+}
+
+.description{
+    margin: 10px 0px;
+    font-size: var(--description-size);
+    text-align: center;
+}
+
+.search{
+    margin: 10px 0px 30px;
+    text-align: center;
+}
+
+.search-bar{
+    border: none;
+    background-color: var(--search-bar-bg-color);
+    border-radius: 5px;
+    padding: 10px 10px;
+    color: var(--search-bar-font-color);
+}
+
+.search-bar::placeholder{
+    color: var(--placeholder-color);
+}
+
+ul{
+    padding: 0px 0px;
+    list-style: none;
+    text-align: center;
+}
