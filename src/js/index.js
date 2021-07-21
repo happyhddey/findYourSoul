@@ -1,6 +1,6 @@
 
 async function main(){
-    const filePath = "../data/famousPeopleForLastName.txt"
+    const filePath = "./data/famousPeopleForLastName.txt"
 
     const data = await fetchData(filePath);
     const $input = document.getElementsByClassName("search-bar")[0];
